@@ -1,0 +1,58 @@
+{
+  "name": "Album Rating",
+  "author": "Mark Deppe",
+  "version": "1.1.0",
+  "description": "Automatically calculates album ratings from track ratings (average, rounded half up) once a configurable share of the album's tracks has been rated.",
+  "website": "https://github.com/Raptor05/nd-album-rating",
+  "config": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "threshold_percent": {
+          "type": "integer",
+          "title": "Minimum share of rated tracks (%)",
+          "description": "An album rating is only calculated once at least this share of the album's tracks has been rated.",
+          "default": 75,
+          "minimum": 1,
+          "maximum": 100
+        },
+        "remove_when_below": {
+          "type": "boolean",
+          "title": "Remove the album rating when track ratings are removed and the share drops below the minimum",
+          "default": true
+        },
+        "interval_minutes": {
+          "type": "integer",
+          "title": "Check interval (minutes)",
+          "description": "How often the plugin checks for changed track ratings.",
+          "default": 5,
+          "minimum": 1,
+          "maximum": 1440
+        }
+      }
+    },
+    "uiSchema": {
+      "type": "VerticalLayout",
+      "elements": [
+        { "type": "Control", "scope": "#/properties/threshold_percent" },
+        { "type": "Control", "scope": "#/properties/remove_when_below" },
+        { "type": "Control", "scope": "#/properties/interval_minutes" }
+      ]
+    }
+  },
+  "permissions": {
+    "scheduler": {
+      "reason": "Periodically check for changed track ratings"
+    },
+    "kvstore": {
+      "reason": "Store intermediate run state and the album ratings set by this plugin",
+      "maxSize": "32MB"
+    },
+    "subsonicapi": {
+      "reason": "Read track and album ratings and set album ratings"
+    },
+    "users": {
+      "reason": "Process the ratings of the authorized users"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+# Build output
+plugin.wasm
+*.ndp
+dist/
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store

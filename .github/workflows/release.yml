@@ -1,0 +1,52 @@
+name: Release
+
+# Runs when a version tag is pushed (e.g. v1.2.0):
+# tests, builds, sets the manifest version from the tag and publishes a GitHub release
+# with the .ndp file attached.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+env:
+  PLUGIN_ID: album-rating
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: false
+
+      - name: Resolve dependencies
+        run: go mod tidy
+
+      - name: Test
+        run: go test -v ./...
+
+      - name: Set manifest version from tag
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          jq --arg v "$VERSION" '.version = $v' manifest.json > manifest.tmp
+          mv manifest.tmp manifest.json
+          echo "Manifest version: $(jq -r .version manifest.json)"
+
+      - name: Build WebAssembly module
+        run: GOOS=wasip1 GOARCH=wasm go build -buildmode=c-shared -o plugin.wasm .
+
+      - name: Package plugin
+        run: zip -j "${PLUGIN_ID}.ndp" manifest.json plugin.wasm
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.PLUGIN_ID }}.ndp
+          generate_release_notes: true

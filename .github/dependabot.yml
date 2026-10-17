@@ -1,0 +1,8 @@
+# Keeps the GitHub Actions used by the workflows up to date via pull requests.
+# The Navidrome PDK uses a pseudo-version; update it manually (see CONTRIBUTING.md).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
